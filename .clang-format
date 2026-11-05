@@ -1,0 +1,5 @@
+BasedOnStyle: GNU
+IndentWidth: 2
+TabWidth: 2
+IndentCaseLabels: true
+InsertBraces: true
