@@ -10,6 +10,10 @@
 #define STACK_SIZE 16
 #define NUM_KEYS 16
 
+#define PC_START 0x200
+#define FONT_START 0x050
+#define FONT_SIZE (5 * 16)
+
 /* struct representing the chip8 system */
 struct chip8
 {
@@ -30,3 +34,5 @@ struct chip8
   uint8_t keypad[NUM_KEYS];       /* the hex input keypad */
   uint32_t display[DISPLAY_SIZE]; /* the monochrom output display */
 };
+
+struct chip8 *chip8_init (void);
