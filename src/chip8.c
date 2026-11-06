@@ -55,6 +55,13 @@ chip8_load_rom (struct chip8 *chip8, const char *rom)
   return true;
 }
 
+/* free the associated memory for a given chip8 struct */
+void
+chip8_destroy (struct chip8 *chip8)
+{
+  free (chip8);
+}
+
 /* set all values in the state to default values */
 static void
 chip8_reset (struct chip8 *chip8)

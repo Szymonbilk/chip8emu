@@ -40,3 +40,4 @@ struct chip8
 
 struct chip8 *chip8_init (void);
 bool chip8_load_rom (struct chip8 *chip8, const char *rom);
+void chip8_destroy (struct chip8 *chip8);
