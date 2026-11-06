@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #define MEM_SIZE 4096
@@ -13,6 +14,8 @@
 #define PC_START 0x200
 #define FONT_START 0x050
 #define FONT_SIZE (5 * 16)
+
+#define MAX_ROM_SIZE (MEM_SIZE - PC_START)
 
 /* struct representing the chip8 system */
 struct chip8
@@ -36,3 +39,4 @@ struct chip8
 };
 
 struct chip8 *chip8_init (void);
+bool chip8_load_rom (struct chip8 *chip8, const char *rom);

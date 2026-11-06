@@ -1,4 +1,5 @@
 #include "chip8.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -34,6 +35,24 @@ chip8_init (void)
       chip8_reset (chip8);
     }
   return chip8;
+}
+
+/* load a rom from a given file */
+bool
+chip8_load_rom (struct chip8 *chip8, const char *rom)
+{
+  FILE *file;
+
+  file = fopen (rom, "rb");
+  if (file == NULL)
+    {
+      return false;
+    }
+
+  fread (&chip8->memory[PC_START], 1, MAX_ROM_SIZE, file);
+
+  fclose (file);
+  return true;
 }
 
 /* set all values in the state to default values */
