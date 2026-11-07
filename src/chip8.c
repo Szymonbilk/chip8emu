@@ -63,14 +63,15 @@ void
 chip8_step (struct chip8 *chip8)
 {
   uint16_t opcode
-      = (chip8->memory[chip8->pc++] << 8) | chip8->memory[chip8->pc++];
+      = (chip8->memory[chip8->pc] << 8) | chip8->memory[chip8->pc + 1];
+  chip8->pc += 2;
 
   uint8_t vx
       = (opcode & 0x0F00) >> 8; /* second nibble, used for VX register */
   uint8_t vy = (opcode & 0x00F0) >> 4; /* third nibble, used for VY register */
   uint8_t n = (opcode & 0x000F);       /* fourth nibble, a 4-bit number */
-  uint8_t nn = (opcode & 0x00FF);  /* second byte, an 8-bit immediate number */
-  uint8_t nnn = (opcode & 0x0FFF); /* second, third and fourth nibbles, a
+  uint8_t nn = (opcode & 0x00FF); /* second byte, an 8-bit immediate number */
+  uint16_t nnn = (opcode & 0x0FFF); /* second, third and fourth nibbles, a
                                       12-bit immediate memory address */
 
   /* first search based on the first nibble */
@@ -81,7 +82,7 @@ chip8_step (struct chip8 *chip8)
           {
             /* clear the display */
             case 0x00E0:
-              memset (&chip8->memory, 0, DISPLAY_SIZE);
+              memset (&chip8->display, 0, DISPLAY_SIZE);
               break;
             /* return from a subroutine */
             case 0x00EE:
