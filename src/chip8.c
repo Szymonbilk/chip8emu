@@ -102,6 +102,7 @@ chip8_step (struct chip8 *chip8)
         /* call subroutine at NNN */
         chip8->stack[chip8->sp] = chip8->pc;
         chip8->sp++;
+        chip8->pc = nnn;
         break;
 
       case 0x3000:
@@ -294,8 +295,19 @@ chip8_step (struct chip8 *chip8)
               chip8->registers[vx] = chip8->delay_timer;
               break;
             case 0x000A:
-              /* block until key VX is pressed */
-              if (!chip8->keypad[chip8->registers[vx]])
+              /* block until any key is pressed and store it into VX */
+              bool found = false;
+
+              for (int k = 0; k < NUM_KEYS; k++)
+                {
+                  if (chip8->keypad[k])
+                    {
+                      found = true;
+                      break;
+                    }
+                }
+
+              if (!found)
                 {
                   chip8->pc -= 2;
                 }
