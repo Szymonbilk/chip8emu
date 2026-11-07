@@ -9,8 +9,11 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
+find_package(SDL3 REQUIRED CONFIG)
+
 file(GLOB SOURCES CONFIGURE_DEPENDS src/*.c)
 add_executable(chip8emu ${SOURCES})
+target_link_libraries(chip8emu PRIVATE SDL3::SDL3)
 
 if(NOT MSVC)
   target_compile_options(chip8emu PRIVATE -Wall -Wextra -Wpedantic)
