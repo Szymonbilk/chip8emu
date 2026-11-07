@@ -206,6 +206,17 @@ chip8_step (struct chip8 *chip8)
         chip8->index = nnn;
         break;
 
+      case 0xB000:
+        /* NOTE: ambiguous instruction */
+        /* jump to address at NNN + V0 */
+        chip8->pc = chip8->registers[0] + nnn;
+        break;
+
+      case 0xC000:
+        /* set VX to random number & NN */
+        chip8->registers[vx] = random () & nn;
+        break;
+
       case 0xD000:
         /* sprite vx vy N */
         uint8_t x_coord = chip8->registers[vx] % DISPLAY_WIDTH;
@@ -248,6 +259,91 @@ chip8_step (struct chip8 *chip8)
               }
           }
         break;
+
+      case 0xE000:
+        switch (nn)
+          {
+            case 0x009E:
+              /* skip one instruction if key VX is pressed */
+              if (chip8->keypad[chip8->registers[vx]])
+                {
+                  chip8->pc += 2;
+                }
+              break;
+            case 0x00A1:
+              /* skip one instruction if key VX is not pressed */
+              if (!chip8->keypad[chip8->registers[vx]])
+                {
+                  chip8->pc += 2;
+                }
+              break;
+            default:
+              goto unknowninstr;
+          }
+        break;
+
+      case 0xF000:
+        switch (nn)
+          {
+            case 0x0007:
+              /* set VX to the delay timer */
+              chip8->registers[vx] = chip8->delay_timer;
+              break;
+            case 0x000A:
+              /* block until key VX is pressed */
+              if (!chip8->keypad[chip8->registers[vx]])
+                {
+                  chip8->pc -= 2;
+                }
+              break;
+            case 0x0015:
+              /* set the delay timer to VX */
+              chip8->delay_timer = chip8->registers[vx];
+              break;
+            case 0x0018:
+              /* set the sound timer to VX */
+              chip8->sound_timer = chip8->registers[vx];
+              break;
+            case 0x001E:
+              /* NOTE: ambiguous instruction */
+              /* add VX to index register */
+              uint16_t result = chip8->index + chip8->registers[vx];
+              chip8->index = result & 0xFFF;
+              chip8->registers[VF] = result > 0xFFF;
+              break;
+            case 0x0029:
+              /* set index register to font memory address of character in VX
+               */
+              chip8->index = chip8->registers[vx] * CHAR_SIZE + FONT_START;
+              break;
+            case 0x0033:
+              /* convert VX to BCD, stored in memory starting at index register
+               */
+              uint8_t vx_val = chip8->registers[vx];
+              chip8->memory[chip8->index] = vx_val / 100;
+              chip8->memory[chip8->index + 1] = (vx_val / 10) % 10;
+              chip8->memory[chip8->index + 2] = vx_val % 10;
+              break;
+            case 0x0055:
+              /* NOTE: ambiguous instruction */
+              /* store registers from V0 to VX inclusive in memory */
+              for (int i = 0; i <= vx; i++)
+                {
+                  chip8->memory[chip8->index + i] = chip8->registers[i];
+                }
+              break;
+            case 0x0065:
+              /* NOTE: ambiguous instruction */
+              /* read memory into register V0 to VX inclusive */
+              for (int i = 0; i <= vx; i++)
+                {
+                  chip8->registers[i] = chip8->memory[chip8->index + i];
+                }
+              break;
+            default:
+              goto unknowninstr;
+          }
+
       default:
       unknowninstr:
         fprintf (stderr, "Unrecognised instruction: %" PRIx16 "\n", opcode);

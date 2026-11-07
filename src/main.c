@@ -1,6 +1,7 @@
 #include "chip8.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #define SDL_MAIN_USE_CALLBACKS 1
 
@@ -37,6 +38,9 @@ struct app
 SDL_AppResult
 SDL_AppInit (void **appstate, int argc, char **argv)
 {
+  /* seed random with the current time */
+  srand (time (NULL));
+
   struct app *app = calloc (1, sizeof (struct app));
   if (app == NULL)
     {

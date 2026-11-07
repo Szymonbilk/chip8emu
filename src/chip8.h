@@ -13,7 +13,8 @@
 
 #define PC_START 0x200
 #define FONT_START 0x050
-#define FONT_SIZE (5 * 16)
+#define CHAR_SIZE 5
+#define FONT_SIZE (CHAR_SIZE * 16)
 
 #define MAX_ROM_SIZE (MEM_SIZE - PC_START)
 
@@ -36,7 +37,7 @@ struct chip8
       delay_timer; /* timer which is decremented at 60 Hz until reaching 0 */
   uint8_t sound_timer; /* similar to delay_timer, but beeps when not 0 */
 
-  uint8_t keypad[NUM_KEYS];       /* the hex input keypad */
+  bool keypad[NUM_KEYS];          /* the hex input keypad */
   uint8_t display[DISPLAY_SIZE];  /* the monochrome output display */
 };
 
