@@ -76,7 +76,7 @@ chip8_step (struct chip8 *chip8)
   switch (opcode & 0xF000)
     {
       case 0x0000:
-        switch (opcode & 0x00FF)
+        switch (nn)
           {
             case 0x00E0:
               /* clear the display */
@@ -91,15 +91,18 @@ chip8_step (struct chip8 *chip8)
               goto unknowninstr;
           }
         break;
+
       case 0x1000:
         /* jump to NNN */
         chip8->pc = nnn;
         break;
+
       case 0x2000:
         /* call subroutine at NNN */
         chip8->stack[chip8->sp] = chip8->pc;
         chip8->sp++;
         break;
+
       case 0x3000:
         /* skip one instruction if VX == NN */
         if (chip8->registers[vx] == nn)
@@ -107,6 +110,7 @@ chip8_step (struct chip8 *chip8)
             chip8->pc += 2;
           }
         break;
+
       case 0x4000:
         /* skip one instruction if VX != NN */
         if (chip8->registers[vx] != nn)
@@ -114,6 +118,7 @@ chip8_step (struct chip8 *chip8)
             chip8->pc += 2;
           }
         break;
+
       case 0x5000:
         /* skip one instruction if VX == VY */
         if (chip8->registers[vx] == chip8->registers[vy])
@@ -121,14 +126,73 @@ chip8_step (struct chip8 *chip8)
             chip8->pc += 2;
           }
         break;
+
       case 0x6000:
-        /* set vx to NN */
+        /* set VX to NN */
         chip8->registers[vx] = nn;
         break;
+
       case 0x7000:
-        /* add NN to vx */
+        /* add NN to VX */
         chip8->registers[vx] += nn;
         break;
+
+      case 0x8000:
+        switch (n)
+          {
+            case 0x0000:
+              /* VX = VY */
+              chip8->registers[vx] = chip8->registers[vy];
+              break;
+            case 0x0001:
+              /* VX = VX | VY */
+              chip8->registers[vx] |= chip8->registers[vy];
+              break;
+            case 0x0002:
+              /* VX = VX & VY */
+              chip8->registers[vx] &= chip8->registers[vy];
+              break;
+            case 0x0003:
+              /* VX = VX ^ VY */
+              chip8->registers[vx] ^= chip8->registers[vy];
+              break;
+            case 0x0004:
+              /* VX = VX + VY, setting carry flag in case of overflow */
+              uint16_t result = chip8->registers[vx] + chip8->registers[vy];
+              chip8->registers[vx] = result & 0xFF;
+              chip8->registers[VF] = result > 0xFF;
+              break;
+            case 0x0005:
+              /* VX = VX - VY, setting carry flag to opposite to case of
+               * underflow */
+              chip8->registers[VF]
+                  = chip8->registers[vx] >= chip8->registers[vy];
+              chip8->registers[vx] -= chip8->registers[vy];
+              break;
+            case 0x0006:
+              /* NOTE: ambiguous instruction */
+              /* VX = VX >> 1, store underflow bit in VF */
+              chip8->registers[VF] = chip8->registers[vx] & 0x1;
+              chip8->registers[vx] >>= 1;
+              break;
+            case 0x0007:
+              /* VX = VY - VX, setting carry flag to opposite to case of
+               * underflow */
+              chip8->registers[VF]
+                  = chip8->registers[vy] >= chip8->registers[vx];
+              chip8->registers[vx]
+                  = chip8->registers[vy] - chip8->registers[vx];
+              break;
+            case 0x000E:
+              /* NOTE: ambiguous instruction */
+              /* VX = VX << 1, store overflow bit in VF */
+              chip8->registers[VF] = chip8->registers[vx] >> 7;
+              chip8->registers[vx] <<= 1;
+              break;
+            default:
+              goto unknowninstr;
+          }
+
       case 0x9000:
         /* skip one instruction if VX != VY */
         if (chip8->registers[vx] != chip8->registers[vy])
@@ -136,10 +200,12 @@ chip8_step (struct chip8 *chip8)
             chip8->pc += 2;
           }
         break;
+
       case 0xA000:
         /* set index to NNN */
         chip8->index = nnn;
         break;
+
       case 0xD000:
         /* sprite vx vy N */
         uint8_t x_coord = chip8->registers[vx] % DISPLAY_WIDTH;
