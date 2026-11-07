@@ -144,7 +144,7 @@ SDL_AppIterate (void *appstate)
   app->timer_time_left += dt;
   while (app->timer_time_left >= TIMER_TIME_SLICE)
     {
-      /* tick timers */
+      chip8_timer_tick (app->chip8);
       app->timer_time_left -= TIMER_TIME_SLICE;
     }
 

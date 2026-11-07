@@ -356,6 +356,20 @@ chip8_step (struct chip8 *chip8)
     }
 }
 
+/* decrement the timers if they are above 0 */
+void
+chip8_timer_tick (struct chip8 *chip8)
+{
+  if (chip8->delay_timer > 0)
+    {
+      chip8->delay_timer--;
+    }
+  if (chip8->sound_timer > 0)
+    {
+      chip8->sound_timer--;
+    }
+}
+
 /* free the associated memory for a given chip8 struct */
 void
 chip8_destroy (struct chip8 *chip8)
