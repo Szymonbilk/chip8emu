@@ -78,18 +78,48 @@ chip8_step (struct chip8 *chip8)
       case 0x0000:
         switch (opcode & 0x00FF)
           {
-            /* clear the display */
             case 0x00E0:
+              /* clear the display */
               memset (&chip8->display, 0, DISPLAY_SIZE);
               break;
-            /* return from a subroutine */
             case 0x00EE:
+              /* return from a subroutine */
+              chip8->sp--;
+              chip8->pc = chip8->stack[chip8->sp];
               break;
+            default:
+              goto unknowninstr;
           }
         break;
       case 0x1000:
         /* jump to NNN */
         chip8->pc = nnn;
+        break;
+      case 0x2000:
+        /* call subroutine at NNN */
+        chip8->stack[chip8->sp] = chip8->pc;
+        chip8->sp++;
+        break;
+      case 0x3000:
+        /* skip one instruction if VX == NN */
+        if (chip8->registers[vx] == nn)
+          {
+            chip8->pc += 2;
+          }
+        break;
+      case 0x4000:
+        /* skip one instruction if VX != NN */
+        if (chip8->registers[vx] != nn)
+          {
+            chip8->pc += 2;
+          }
+        break;
+      case 0x5000:
+        /* skip one instruction if VX == VY */
+        if (chip8->registers[vx] == chip8->registers[vy])
+          {
+            chip8->pc += 2;
+          }
         break;
       case 0x6000:
         /* set vx to NN */
@@ -98,6 +128,13 @@ chip8_step (struct chip8 *chip8)
       case 0x7000:
         /* add NN to vx */
         chip8->registers[vx] += nn;
+        break;
+      case 0x9000:
+        /* skip one instruction if VX != VY */
+        if (chip8->registers[vx] != chip8->registers[vy])
+          {
+            chip8->pc += 2;
+          }
         break;
       case 0xA000:
         /* set index to NNN */
@@ -146,6 +183,7 @@ chip8_step (struct chip8 *chip8)
           }
         break;
       default:
+      unknowninstr:
         fprintf (stderr, "Unrecognised instruction: %" PRIx16 "\n", opcode);
         exit (1);
     }
