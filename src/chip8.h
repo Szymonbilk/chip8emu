@@ -17,6 +17,8 @@
 
 #define MAX_ROM_SIZE (MEM_SIZE - PC_START)
 
+#define VF 0xF
+
 /* struct representing the chip8 system */
 struct chip8
 {
@@ -35,9 +37,10 @@ struct chip8
   uint8_t sound_timer; /* similar to delay_timer, but beeps when not 0 */
 
   uint8_t keypad[NUM_KEYS];       /* the hex input keypad */
-  uint32_t display[DISPLAY_SIZE]; /* the monochrom output display */
+  uint8_t display[DISPLAY_SIZE];  /* the monochrome output display */
 };
 
 struct chip8 *chip8_init (void);
 bool chip8_load_rom (struct chip8 *chip8, const char *rom);
+void chip8_step (struct chip8 *chip8);
 void chip8_destroy (struct chip8 *chip8);
