@@ -34,6 +34,13 @@ struct app
                                current frame */
 };
 
+/* the mapping of keyboard keys to the chip8 keypad */
+static const SDL_Scancode keymap[NUM_KEYS]
+    = { SDL_SCANCODE_X, SDL_SCANCODE_1, SDL_SCANCODE_2, SDL_SCANCODE_3,
+        SDL_SCANCODE_Q, SDL_SCANCODE_W, SDL_SCANCODE_E, SDL_SCANCODE_A,
+        SDL_SCANCODE_S, SDL_SCANCODE_D, SDL_SCANCODE_Z, SDL_SCANCODE_C,
+        SDL_SCANCODE_4, SDL_SCANCODE_R, SDL_SCANCODE_F, SDL_SCANCODE_V };
+
 /* initialise the application state */
 SDL_AppResult
 SDL_AppInit (void **appstate, int argc, char **argv)
@@ -109,11 +116,24 @@ SDL_AppInit (void **appstate, int argc, char **argv)
 SDL_AppResult
 SDL_AppEvent (void *appstate, SDL_Event *event)
 {
-  (void)appstate;
+  struct app *app = appstate;
 
   if (event->type == SDL_EVENT_QUIT)
     {
       return SDL_APP_SUCCESS;
+    }
+
+  if (event->type == SDL_EVENT_KEY_DOWN || event->type == SDL_EVENT_KEY_UP)
+    {
+      bool down = (event->type == SDL_EVENT_KEY_DOWN);
+
+      for (int k = 0; k < NUM_KEYS; k++)
+        {
+          if (event->key.scancode == keymap[k])
+            {
+              app->chip8->keypad[k] = down;
+            }
+        }
     }
 
   return SDL_APP_CONTINUE;
