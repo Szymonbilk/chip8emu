@@ -193,6 +193,7 @@ chip8_step (struct chip8 *chip8)
             default:
               goto unknowninstr;
           }
+        break;
 
       case 0x9000:
         /* skip one instruction if VX != VY */
@@ -346,6 +347,7 @@ chip8_step (struct chip8 *chip8)
             default:
               goto unknowninstr;
           }
+        break;
 
       default:
       unknowninstr:
