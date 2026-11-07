@@ -148,13 +148,18 @@ SDL_AppIterate (void *appstate)
       app->timer_time_left -= TIMER_TIME_SLICE;
     }
 
-  for (int i = 0; i < DISPLAY_SIZE; i++)
+  if (app->chip8->display_changed)
     {
-      app->pixels[i] = app->chip8->display[i] ? 0xFFFFFFFF : 0xFF000000;
+      for (int i = 0; i < DISPLAY_SIZE; i++)
+        {
+          app->pixels[i] = app->chip8->display[i] ? 0xFFFFFFFF : 0xFF000000;
+        }
+
+      SDL_UpdateTexture (app->tex, NULL, app->pixels,
+                         DISPLAY_WIDTH * sizeof (uint32_t));
+      app->chip8->display_changed = false;
     }
 
-  SDL_UpdateTexture (app->tex, NULL, app->pixels,
-                     DISPLAY_WIDTH * sizeof (uint32_t));
   SDL_RenderClear (app->ren);
   SDL_RenderTexture (app->ren, app->tex, NULL,
                      NULL); // NULL dst = stretch to window

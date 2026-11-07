@@ -81,6 +81,7 @@ chip8_step (struct chip8 *chip8)
             case 0x00E0:
               /* clear the display */
               memset (&chip8->display, 0, DISPLAY_SIZE);
+              chip8->display_changed = true;
               break;
             case 0x00EE:
               /* return from a subroutine */
@@ -258,6 +259,8 @@ chip8_step (struct chip8 *chip8)
                   }
               }
           }
+
+        chip8->display_changed = true;
         break;
 
       case 0xE000:
@@ -365,5 +368,6 @@ chip8_reset (struct chip8 *chip8)
   /* set all values to 0 */
   memset (chip8, 0, sizeof (struct chip8));
   chip8->pc = PC_START;
+  chip8->display_changed = true;
   memcpy (chip8->memory + FONT_START, font, FONT_SIZE);
 }

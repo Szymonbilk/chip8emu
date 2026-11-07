@@ -39,6 +39,7 @@ struct chip8
 
   bool keypad[NUM_KEYS];          /* the hex input keypad */
   uint8_t display[DISPLAY_SIZE];  /* the monochrome output display */
+  bool display_changed; /* indicates whether the display has changed */
 };
 
 struct chip8 *chip8_init (void);
