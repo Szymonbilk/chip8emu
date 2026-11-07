@@ -72,6 +72,8 @@ chip8_step (struct chip8 *chip8)
   uint16_t nnn = (opcode & 0x0FFF); /* second, third and fourth nibbles, a
                                       12-bit immediate memory address */
 
+  uint8_t flag;
+
   /* first search based on the first nibble */
   switch (opcode & 0xF000)
     {
@@ -167,29 +169,31 @@ chip8_step (struct chip8 *chip8)
             case 0x0005:
               /* VX = VX - VY, setting carry flag to opposite to case of
                * underflow */
-              chip8->registers[VF]
-                  = chip8->registers[vx] >= chip8->registers[vy];
+              flag = chip8->registers[vx] >= chip8->registers[vy];
               chip8->registers[vx] -= chip8->registers[vy];
+              chip8->registers[VF] = flag;
               break;
             case 0x0006:
               /* NOTE: ambiguous instruction */
               /* VX = VX >> 1, store underflow bit in VF */
-              chip8->registers[VF] = chip8->registers[vx] & 0x1;
+              flag = chip8->registers[vx] & 0x1;
               chip8->registers[vx] >>= 1;
+              chip8->registers[VF] = flag;
               break;
             case 0x0007:
               /* VX = VY - VX, setting carry flag to opposite to case of
                * underflow */
-              chip8->registers[VF]
-                  = chip8->registers[vy] >= chip8->registers[vx];
+              flag = chip8->registers[vy] >= chip8->registers[vx];
               chip8->registers[vx]
                   = chip8->registers[vy] - chip8->registers[vx];
+              chip8->registers[VF] = flag;
               break;
             case 0x000E:
               /* NOTE: ambiguous instruction */
               /* VX = VX << 1, store overflow bit in VF */
-              chip8->registers[VF] = chip8->registers[vx] >> 7;
+              flag = chip8->registers[vx] >> 7;
               chip8->registers[vx] <<= 1;
+              chip8->registers[VF] = flag;
               break;
             default:
               goto unknowninstr;
