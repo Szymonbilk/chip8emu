@@ -4,8 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
-
 /* the standard font */
 static const uint8_t font[FONT_SIZE] = {
   0xF0, 0x90, 0x90, 0x90, 0xF0, /* 0 */
@@ -112,23 +110,30 @@ chip8_step (struct chip8 *chip8)
         uint8_t row;
         chip8->registers[VF] = 0;
 
-        int sprite_y_end = y_coord + n - 1;
-        int sprite_x_end = x_coord + 8 - 1;
-        int y_end = MIN (DISPLAY_HEIGHT, sprite_y_end);
-        int x_end = MIN (DISPLAY_WIDTH, sprite_x_end);
-
-        for (int dy = 0; dy < y_end; dy++)
+        for (int dy = 0; dy < n; dy++)
           {
+            /* clip if we get to the end of the display */
+            if (y_coord + dy >= DISPLAY_HEIGHT)
+              {
+                break;
+              }
+
             /* get a row of pixels from memory */
             row = chip8->memory[chip8->index + dy];
 
-            for (int dx = 0; dx < x_end; dx++)
+            for (int dx = 0; dx < 8; dx++)
               {
+                /* clip if we get to the end of the display */
+                if (x_coord + dx >= DISPLAY_WIDTH)
+                  {
+                    break;
+                  }
+
                 /* extract each pixel from the row */
                 if ((row & (0x80 >> dx)) != 0)
                   {
                     int display_coord
-                        = x_coord + dx + (y_coord + dy) * DISPLAY_HEIGHT;
+                        = x_coord + dx + (y_coord + dy) * DISPLAY_WIDTH;
 
                     if (chip8->display[display_coord] == 1)
                       {
