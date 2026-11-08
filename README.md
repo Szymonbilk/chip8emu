@@ -18,3 +18,7 @@ The binary can then be found as `build/chip8emu`
 `chip8emu path/to/rom`
 Simple run the binary with the path to any ROM file
 The keypad is mapped to the left side of the keyboard, i.e. 123,QWE,ASD,ZXC
+
+## Credit
+https://tobiasvl.github.io/blog/write-a-chip-8-emulator/
+The best resource for creating a Chip8 emulator!
